@@ -2,14 +2,16 @@ package com.sandeep.invoice.dto;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
-import lombok.Value;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 
 import java.math.BigDecimal;
 
-@Value
+@Data
 public class PayInvoiceRequest {
 
     @DecimalMin(value = "0.0", inclusive = false)
     @Digits(integer=7, fraction=2)
+    @NotNull
     BigDecimal amount;
 }

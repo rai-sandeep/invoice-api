@@ -1,15 +1,17 @@
 package com.sandeep.invoice.dto;
 
+import lombok.Builder;
 import lombok.Value;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Value
+@Builder
 public class InvoiceResponse {
     String id;
     BigDecimal amount;
     BigDecimal paidAmount;
-    Date dueDate;
-    Status status;
+    LocalDate dueDate;
+    String status;
 }

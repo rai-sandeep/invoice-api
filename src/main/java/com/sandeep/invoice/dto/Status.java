@@ -3,5 +3,9 @@ package com.sandeep.invoice.dto;
 public enum Status {
     PENDING,
     PAID,
-    VOID
+    VOID;
+
+    public String nameLowerCase() {
+        return name().toLowerCase();
+    }
 }

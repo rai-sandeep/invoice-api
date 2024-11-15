@@ -5,7 +5,7 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -16,6 +16,6 @@ public class Invoice {
 
     BigDecimal amount;
     BigDecimal paidAmount;
-    Date dueDate;
+    LocalDate dueDate;
     String status;
 }
