@@ -31,7 +31,7 @@ Clone the repository and use one of the options to run it. Access the applicatio
    ```
 ### 2. Run the Application
 
-### Option 1: Run Directly using Maven
+#### Option 1: Run Directly using Maven
 
 To run the application directly using Maven (requires Java 21 or higher, Maven 3.8 or higher):
 
@@ -39,7 +39,7 @@ To run the application directly using Maven (requires Java 21 or higher, Maven 3
    mvn spring-boot:run
    ```
 
-### Option 2: Build and Run the JAR
+#### Option 2: Build and Run the JAR
 
 To build and run the application as a standalone JAR (requires Java 21 or higher, Maven 3.8 or higher):
 
@@ -52,7 +52,7 @@ To build and run the application as a standalone JAR (requires Java 21 or higher
    java -jar target/api.jar
    ```
 
-### Option 3: Run with Docker
+#### Option 3: Run with Docker
 
 To run the application using Docker:
 
@@ -65,7 +65,7 @@ To run the application using Docker:
    docker run -p 8080:8080 invoice-api
    ```
 
-### Option 4: Run with Docker Compose
+#### Option 4: Run with Docker Compose
 
 To deploy the application using Docker Compose:
    ```bash
