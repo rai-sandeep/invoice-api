@@ -1,5 +1,6 @@
 package com.sandeep.invoice.repository;
 
+import com.sandeep.invoice.dto.Status;
 import com.sandeep.invoice.model.Invoice;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -9,5 +10,5 @@ import java.util.List;
 
 @Repository
 public interface InvoiceRepository extends CrudRepository<Invoice, Long> {
-    List<Invoice> findByStatusAndDueDateBefore(String status, LocalDate processingDate);
+    List<Invoice> findByStatusAndDueDateBefore(Status status, LocalDate processingDate);
 }
