@@ -1,5 +1,6 @@
 package com.sandeep.invoice.exception;
 
+import com.sandeep.invoice.dto.ErrorResponse;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleValidationException(MethodArgumentNotValidException ex) {
+    public ErrorResponse handleValidationException(MethodArgumentNotValidException ex) {
         logException(ex);
 
         String errorMessage = ex.getBindingResult().getAllErrors().stream()
@@ -31,12 +31,12 @@ public class GlobalExceptionHandler {
                 })
                 .collect(Collectors.joining(", "));
 
-        return Map.of("message", "Validation failed: " + errorMessage);
+        return new ErrorResponse("Validation failed: " + errorMessage);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleConstraintViolationException(ConstraintViolationException ex) {
+    public ErrorResponse handleConstraintViolationException(ConstraintViolationException ex) {
         logException(ex);
 
         String errorMessage = ex.getConstraintViolations().stream()
@@ -44,25 +44,25 @@ public class GlobalExceptionHandler {
                         "%s: %s", violation.getPropertyPath(), violation.getMessage()))
                 .collect(Collectors.joining(", "));
 
-        return Map.of("message", "Validation failed: " + errorMessage);
+        return new ErrorResponse("Validation failed: " + errorMessage);
     }
 
     @ExceptionHandler({HttpMessageNotReadableException.class,
             MethodArgumentTypeMismatchException.class, InvoiceDataException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleBadRequestExceptions(Exception ex) {
+    public ErrorResponse handleBadRequestExceptions(Exception ex) {
         return logAndReturnException(ex);
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Map<String, String> handleAllExceptions(Exception ex) {
+    public ErrorResponse handleAllExceptions(Exception ex) {
         return logAndReturnException(ex);
     }
 
-    private Map<String, String> logAndReturnException(Exception ex) {
+    private ErrorResponse logAndReturnException(Exception ex) {
         logException(ex);
-        return Map.of("message", ex.getMessage());
+        return new ErrorResponse(ex.getMessage());
     }
 
     private void logException(Exception ex) {
