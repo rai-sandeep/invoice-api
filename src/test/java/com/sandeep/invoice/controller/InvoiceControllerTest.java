@@ -72,7 +72,7 @@ class InvoiceControllerTest {
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].id", is("1")))
                 .andExpect(jsonPath("$[0].amount", is(100.00)))
-                .andExpect(jsonPath("$[0].dueDate", is("2024-11-30")))
+                .andExpect(jsonPath("$[0].due_date", is("2024-11-30")))
                 .andExpect(jsonPath("$[0].status", is("PENDING")));
     }
 
