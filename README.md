@@ -15,6 +15,7 @@ The application supports operations like creating invoices, making payments, and
         - [Option 3: Run with Docker](#option-3-run-with-docker)
         - [Option 4: Run with Docker Compose](#option-4-run-with-docker-compose)
 - [API Documentation](#api-documentation)
+    - [Basic Usage](#basic-usage)
 - [Postman Collection](#postman-collection)
 - [H2 Database Console](#h2-database-console)
 
@@ -78,6 +79,17 @@ For details about the API endpoints and their usage:
 
 - Swagger UI: http://localhost:8080/swagger-ui.html.
 - Alternatively, refer to the api-docs endpoint at http://localhost:8080/v3/api-docs.
+
+### Basic Usage
+
+Here are some high-level examples of how to interact with the API:
+
+- **Create an Invoice** (POST `/invoices`)
+- **Get All Invoices** (GET `/invoices`)
+- **Pay an Invoice** (POST `/invoices/{invoiceId}/payments`)
+- **Process Overdue Invoices** (POST `/invoices/process-overdue`)
+
+For more detailed documentation, including request/response models, status codes, and examples, please refer to the Swagger UI linked above.
 
 ## Postman Collection
 
