@@ -1,6 +1,5 @@
 package com.sandeep.invoice.exception;
 
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -25,16 +23,15 @@ public class GlobalExceptionHandler {
     public Map<String, String> handleValidationException(MethodArgumentNotValidException ex) {
         logException(ex);
 
-        Map<String, String> errors = new HashMap<>();
-        errors.put("message", "Validation failed");
+        String errorMessage = ex.getBindingResult().getAllErrors().stream()
+                .map(error -> {
+                    String fieldName = ((FieldError) error).getField();
+                    String fieldErrorMessage = error.getDefaultMessage();
+                    return String.format("%s: %s", fieldName, fieldErrorMessage);
+                })
+                .collect(Collectors.joining(", "));
 
-        ex.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-
-        return errors;
+        return Map.of("message", "Validation failed: " + errorMessage);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -42,12 +39,12 @@ public class GlobalExceptionHandler {
     public Map<String, String> handleConstraintViolationException(ConstraintViolationException ex) {
         logException(ex);
 
-        return ex.getConstraintViolations()
-                .stream()
-                .collect(Collectors.toMap(
-                        violation -> violation.getPropertyPath().toString(),
-                        ConstraintViolation::getMessage
-                ));
+        String errorMessage = ex.getConstraintViolations().stream()
+                .map(violation -> String.format(
+                        "%s: %s", violation.getPropertyPath(), violation.getMessage()))
+                .collect(Collectors.joining(", "));
+
+        return Map.of("message", "Validation failed: " + errorMessage);
     }
 
     @ExceptionHandler({HttpMessageNotReadableException.class,
