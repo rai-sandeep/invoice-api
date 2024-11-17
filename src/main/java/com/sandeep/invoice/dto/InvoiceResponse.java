@@ -1,5 +1,6 @@
 package com.sandeep.invoice.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Value;
 
@@ -11,7 +12,9 @@ import java.time.LocalDate;
 public class InvoiceResponse {
     String id;
     BigDecimal amount;
+    @JsonProperty("paid_amount")
     BigDecimal paidAmount;
+    @JsonProperty("due_date")
     LocalDate dueDate;
     Status status;
 }
