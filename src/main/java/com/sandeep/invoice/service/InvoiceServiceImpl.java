@@ -46,6 +46,30 @@ public class InvoiceServiceImpl implements InvoiceService {
         return responseList;
     }
 
+    /**
+     * Processes a payment for a specified invoice.
+     * <p>
+     * This method allows payment to be made on an invoice if it has a PENDING status.
+     * The payment amount is added to the current paid amount. If the total paid amount
+     * equals the invoice amount, the invoice status is updated to PAID. The updated
+     * invoice is saved in the repository.
+     * </p>
+     * <p>
+     * The method performs the following validations:
+     * <ul>
+     *   <li>Throws an exception if the invoice with the specified {@code invoiceId} is not found.</li>
+     *   <li>Throws an exception if the invoice is not in a PENDING status.</li>
+     *   <li>Throws an exception if the payment amount exceeds the remaining balance of the invoice.</li>
+     * </ul>
+     * </p>
+     *
+     * @param invoiceId the ID of the invoice to be paid
+     * @param amount    the amount to be paid towards the invoice
+     * @return an {@link InvoiceResponse} object containing details of the updated invoice
+     * @throws InvoiceNotFoundException if no invoice is found with the specified {@code invoiceId}
+     * @throws InvoicePaymentDataException if the invoice is not in a PENDING status or if the payment
+     *                                     amount exceeds the remaining balance
+     */
     @Override
     public InvoiceResponse payInvoice(Long invoiceId, BigDecimal amount) {
         Invoice invoice = invoiceRepository.findById(invoiceId)
@@ -76,6 +100,24 @@ public class InvoiceServiceImpl implements InvoiceService {
         return buildInvoiceResponse(invoice);
     }
 
+    /**
+     * Processes overdue invoices by updating their statuses and generating new invoices.
+     * <p>
+     * This method performs the following operations for invoices with a PENDING status
+     * and a due date before the current date:
+     * <ul>
+     *   <li>If the invoice is partially paid, it marks the invoice as PAID and creates a
+     *       new invoice for the remaining balance plus the late fee.</li>
+     *   <li>If the invoice is not paid at all, it marks the invoice as VOID and creates a
+     *       new invoice for the total amount plus the late fee.</li>
+     * </ul>
+     * The newly created invoices have a due date calculated by adding the number of overdue
+     * days specified in the {@code request}.
+     * </p>
+     *
+     * @param request the request object containing the late fee to be applied and the number
+     *                of overdue days to calculate the new due date
+     */
     @Override
     public void processOverdue(ProcessOverdueRequest request) {
         List<Invoice> invoices = invoiceRepository.findByStatusAndDueDateBefore(
