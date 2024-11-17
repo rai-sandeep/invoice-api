@@ -3,15 +3,18 @@ package com.sandeep.invoice.controller;
 import com.sandeep.invoice.dto.*;
 import com.sandeep.invoice.service.InvoiceService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/invoices")
+@Validated
 @RequiredArgsConstructor
 public class InvoiceController {
 
@@ -30,7 +33,7 @@ public class InvoiceController {
     }
 
     @PostMapping("{invoiceId}/payments")
-    public InvoiceResponse payInvoice(@PathVariable @Min(1) Long invoiceId,
+    public InvoiceResponse payInvoice(@PathVariable @NotNull @Positive Long invoiceId,
             @Valid @RequestBody PayInvoiceRequest payInvoiceRequest) {
         return invoiceService.payInvoice(invoiceId, payInvoiceRequest.getAmount());
     }

@@ -8,7 +8,6 @@ import com.sandeep.invoice.repository.InvoiceRepository;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -29,7 +28,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 .amount(createInvoiceRequest.getAmount())
                 .paidAmount(BigDecimal.ZERO)
                 .dueDate(createInvoiceRequest.getDueDate())
-                .status(Status.PENDING.nameLowerCase())
+                .status(Status.PENDING)
                 .build();
 
         invoice = invoiceRepository.save(invoice);
@@ -53,7 +52,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 .orElseThrow(() -> new InvoiceNotFoundException(String.format(
                         "%s No invoice found with id %s", PAYMENT_FAILURE_MESSAGE_PREFIX, invoiceId)));
 
-        if (!Status.PENDING.nameLowerCase().equals(invoice.getStatus())) {
+        if (!Status.PENDING.equals(invoice.getStatus())) {
             throw new InvoicePaymentDataException(String.format(
                     "%s Payments can be made only for pending invoices. Status of invoice id %s is: %s",
                     PAYMENT_FAILURE_MESSAGE_PREFIX, invoiceId, invoice.getStatus()));
@@ -69,7 +68,7 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         invoice.setPaidAmount(newPaidAmount);
         if (newPaidAmount.equals(invoice.getAmount())) {
-            invoice.setStatus(Status.PAID.nameLowerCase());
+            invoice.setStatus(Status.PAID);
         }
 
         invoiceRepository.save(invoice);
@@ -79,28 +78,25 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public void processOverdue(ProcessOverdueRequest request) {
-        invoiceRepository.findByStatusAndDueDateBefore(
-                Status.PENDING.nameLowerCase(), LocalDate.now()).forEach(
-                        invoice -> processOverdue(request, invoice));
-    }
+        List<Invoice> invoices = invoiceRepository.findByStatusAndDueDateBefore(
+                Status.PENDING, LocalDate.now());
 
-    @Transactional
-    public void processOverdue(ProcessOverdueRequest request, Invoice invoice) {
-        Invoice newInvoice = Invoice.builder()
-                .amount(invoice.getAmount().subtract(invoice.getPaidAmount()).add(request.getLateFee()))
-                .paidAmount(BigDecimal.ZERO)
-                .dueDate(LocalDate.now().plusDays(request.getOverdueDays()))
-                .status(Status.PENDING.nameLowerCase())
-                .build();
+        for (Invoice invoice : invoices) {
+            Invoice newInvoice = Invoice.builder()
+                    .amount(invoice.getAmount().subtract(invoice.getPaidAmount()).add(request.getLateFee()))
+                    .paidAmount(BigDecimal.ZERO)
+                    .dueDate(LocalDate.now().plusDays(request.getOverdueDays()))
+                    .status(Status.PENDING)
+                    .build();
 
-        if (invoice.getPaidAmount().compareTo(BigDecimal.ZERO) > 0) {
-            invoice.setStatus(Status.PAID.nameLowerCase());
-        } else {
-            invoice.setStatus(Status.VOID.nameLowerCase());
+            if (invoice.getPaidAmount().compareTo(BigDecimal.ZERO) > 0) {
+                invoice.setStatus(Status.PAID);
+            } else {
+                invoice.setStatus(Status.VOID);
+            }
+
+            invoiceRepository.saveAll(List.of(invoice, newInvoice));
         }
-
-        invoiceRepository.save(invoice);
-        invoiceRepository.save(newInvoice);
     }
 
     private InvoiceResponse buildInvoiceResponse(Invoice invoice) {

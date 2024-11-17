@@ -13,5 +13,5 @@ public class InvoiceResponse {
     BigDecimal amount;
     BigDecimal paidAmount;
     LocalDate dueDate;
-    String status;
+    Status status;
 }
